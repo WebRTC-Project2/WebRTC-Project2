@@ -44,6 +44,44 @@
       <h2 class"music-access"> Music Access</h2>
       <ol id= "music-log"></ol>
       <script src="https://sdk.scdn.co/spotify-player.js"></script>
+      <button id="togglePlay">Toggle Play</button>
+      <script>
+      //Initialization of Web Playback SDK for Spotify
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        const token = 'xxxxxxx'; //We have to add a token of a premium spotify account
+        const player = new Spotify.Player({
+          name: 'Web Playback SDK Quick Start Player',
+          getOAuthToken: cb => { cb(token); },
+          volume: 0.5
+        });
+
+        // Ready
+          player.addListener('ready', ({ device_id }) => {
+            console.log('Ready with Device ID', device_id);
+          });
+
+          // Not Ready
+          player.addListener('not_ready', ({ device_id }) => {
+            console.log('Device ID has gone offline', device_id);
+          });
+          player.addListener('initialization_error', ({ message }) => {
+           console.error(message);
+         });
+
+         player.addListener('authentication_error', ({ message }) => {
+             console.error(message);
+         });
+
+         player.addListener('account_error', ({ message }) => {
+             console.error(message);
+         });
+
+         //Connect to Spotify
+         player.connect();
+         document.getElementById('togglePlay').onclick = function() {
+        player.togglePlay();
+        };
+      </script>
   </article>
 
 <script src="/socket.io/socket.io.js"></script>
