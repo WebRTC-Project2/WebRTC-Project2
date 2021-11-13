@@ -22,8 +22,18 @@ const namespaces = io.of(/^\/[0-9]{6}$/);
 
 namespaces.on('connection', function(socket) {
   const namespace = socket.nsp;
+  const multipeers = [];
 
-  socket.broadcast.emit('connected peer');
+  for (let i of namespace.sockets.keys()){
+    multipeers.push(i);
+  }
+
+  //send id's of new connection to connecor
+  socket.emit('connected peer',multipeers);
+
+  //peer id to all connected peers
+  socket.broadcast.emit('connected peer', socket.id);
+
 
   // listen for signals
   socket.on('signal', function(signal) {
