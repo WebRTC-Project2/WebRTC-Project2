@@ -40,49 +40,49 @@
 
       </form>
   </article>
-  <article id="music">
       <h2 class"music-access"> Music Access</h2>
       <ol id= "music-log"></ol>
       <script src="https://sdk.scdn.co/spotify-player.js"></script>
       <button id="togglePlay">Toggle Play</button>
       <script>
-      //Initialization of Web Playback SDK for Spotify
-      window.onSpotifyWebPlaybackSDKReady = () => {
-        const token = 'xxxxxxx'; //We have to add a token of a premium spotify account
-        const player = new Spotify.Player({
-          name: 'Web Playback SDK Quick Start Player',
-          getOAuthToken: cb => { cb(token); },
-          volume: 0.5
-        });
 
-        // Ready
-          player.addListener('ready', ({ device_id }) => {
-            console.log('Ready with Device ID', device_id);
+        //Initialization of Web Playback SDK for Spotify
+        window.onSpotifyWebPlaybackSDKReady = () => {
+          const token = 'BQBSaa-VLBDUBRcdUNsrB7ho59l55a-LtNZFphKd4QA4hTxYMr6gY5sN5m_ZY63oQJoyURMOeT1kooBMNujNEuInXh4Kf4U5xKDTvIJ_zerHF3GJhc3AVws1g_5jU581ENT06e9TPVZ5A-tmKweP8IHi-9qk9MiNYeHjC-Ll21kAJ0sq1xoFu42UI0U'; //We have to add a token of a premium spotify account
+          const player = new Spotify.Player({
+            name: 'Web Playback SDK Quick Start Player',
+            getOAuthToken: cb => { cb(token); },
+            volume: 0.5
           });
+          // Ready
+            player.addListener('ready', ({ device_id }) => {
+              console.log('Ready with Device ID', device_id);
+            });
 
-          // Not Ready
-          player.addListener('not_ready', ({ device_id }) => {
-            console.log('Device ID has gone offline', device_id);
-          });
-          player.addListener('initialization_error', ({ message }) => {
-           console.error(message);
-         });
-
-         player.addListener('authentication_error', ({ message }) => {
+            // Not Ready
+            player.addListener('not_ready', ({ device_id }) => {
+              console.log('Device ID has gone offline', device_id);
+            });
+            player.addListener('initialization_error', ({ message }) => {
              console.error(message);
-         });
+           });
 
-         player.addListener('account_error', ({ message }) => {
-             console.error(message);
-         });
+           player.addListener('authentication_error', ({ message }) => {
+               console.error(message);
+           });
 
-         //Connect to Spotify
-         player.connect();
-         document.getElementById('togglePlay').onclick = function() {
-        player.togglePlay();
-        };
-      </script>
-  </article>
+           player.addListener('account_error', ({ message }) => {
+               console.error(message);
+           });
+
+           //Connect to Spotify
+           document.getElementById('togglePlay').onclick = function() {
+             player.togglePlay();
+           };
+           player.connect();
+         }
+       </script>
+
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://webrtchacks.github.io/adapter/adapter-latest.js"></script>
