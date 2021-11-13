@@ -36,12 +36,12 @@ namespaces.on('connection', function(socket) {
 
 
   // listen for signals
-  socket.on('signal', function(signal) {
-    socket.broadcast.emit('signal', signal);
-  })
+  socket.on('signal', function({ to, from, signal }) {
+    socket.to(to).emit('signal', { to, from, signal });
+  });
   // listen for disconnects
   socket.on('disconnect', function() {
-    namespace.emit('disconnected peer');
+    namespace.emit('disconnected peer', socket.id);
   })
 
 });
