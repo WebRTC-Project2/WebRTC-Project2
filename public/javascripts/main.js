@@ -269,6 +269,7 @@ function handleRtcDataChannel({ channel }) {
 function registerScEvents() {
   sc.on('connect', handleScConnect);
   sc.on('connected peer', handleScConnectedPeer);
+  sc.on('connected peers', handleScConnectedPeers);
   sc.on('signal', handleScSignal);
   sc.on('disconnected peer', handleScDisconnectedPeer)
 }
@@ -277,11 +278,17 @@ function registerScEvents() {
 function handleScConnect() {
   console.log('Connected to signaling channel!');
 }
-function handleScConnectedPeer() {
-  console.log('Heard connected peer event!');
-  $self.isPolite = true;
+
+function handleScConnectedPeers(ids) {
+  console.log('Heard connected peers event!');
 }
-function handleScDisconnectedPeer() {
+
+function handleScConnectedPeer(id) {
+  console.log('Heard connected peer event!');
+}
+
+
+function handleScDisconnectedPeer(id) {
   console.log('Heard disconnected peer event!');
   resetCall($peer);
   registerRtcEvents($peer);
