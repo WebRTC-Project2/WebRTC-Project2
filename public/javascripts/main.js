@@ -125,15 +125,16 @@ function handleButton(e) {
 // function that joins the call
 function joinCall() {
   sc.open();
-  registerRtcEvents($peer);
-  establishCallFeatures($peer);
+
 }
 
 // function that joins the call
 
 function leaveCall() {
-  resetCall($peer)
   sc.close();
+  for (let i in $peers) {
+    resetCall(id, true);
+  }
 }
 // function that resets the connection
 
