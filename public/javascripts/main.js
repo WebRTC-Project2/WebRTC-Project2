@@ -277,23 +277,27 @@ function registerScEvents() {
 
 function handleScConnect() {
   console.log('Connected to signaling channel!');
+  $self.id = sc.id;
+  console.log('Self ID:', $self.id);
 }
 
 function handleScConnectedPeers(ids) {
   console.log('Heard connected peers event!');
+  console.log('Connected peer IDs:', ids.join(', '));
 }
 
 function handleScConnectedPeer(id) {
   console.log('Heard connected peer event!');
+  console.log('Connected peer ID:', id);
 }
 
 
 function handleScDisconnectedPeer(id) {
   console.log('Heard disconnected peer event!');
-  resetCall($peer);
-  registerRtcEvents($peer);
-  establishCallFeatures($peer);
+  console.log('Disconnected peer ID:', id);
+
 }
+
 async function handleScSignal({ description, candidate }) {
   console.log('Heard signal event!');
   if (description) {
