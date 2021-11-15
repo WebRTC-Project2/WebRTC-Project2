@@ -15,3 +15,11 @@ html {
   padding: 13px;
 
 }
+.join {
+  background-color: green;
+  color: white;
+}
+.leave {
+  background-color: #CA0;
+  color: black;
+}
