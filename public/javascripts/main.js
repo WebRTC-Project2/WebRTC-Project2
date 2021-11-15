@@ -3,14 +3,10 @@
 const $self = {
   rtcConfig: null,
   constraints: { audio: true, video: true},
-  isPolite: false,
-  isMakingOffer: false,
-  isIgnoringOffer: false,
-  isSettingRemoteAnswerPending: false
+
 };
 
-const $peer = {
-  connection: new RTCPeerConnection($self.rtcConfig)
+const $peers = {
 };
 
 requestUserMedia($self.constraints);
