@@ -161,7 +161,20 @@ function leaveCall() {
     resetCall(id, true);
   }
 }
-// function that resets the connection
+// functions that resets the connection
+
+function setSelfAndPeerById(id, politeness) {
+  $self[id] = {
+    isPolite: politeness,
+    isMakingOffer: false,
+    isIgnoringOffer: false,
+    isSettingRemoteAnswerPending: false
+  };
+  $peers[id] = {
+    connection: new RTCPeerConnection($self.rtcConfig)
+  }
+}
+
 
 function resetCall(id, disconnect) {
   const peer = $peers[id];
@@ -176,23 +189,21 @@ function resetCall(id, disconnect) {
 }
 // function that resets the connection and establishes it again
 
-function resetAndConnectAgain(peer) {
-  resetCall(peer);
-  $self.isMakingOffer = false;
-  $self.isIgnoringOffer = false;
-  $self.isSettingRemoteAnswerPending = false;
-  $self.isSuppressingInitialOffer = $self.isPolite;
-  registerScEvents(peer);
-  establishCallFeatures(peer);
+function resetAndConnectAgain(id) {
+  const isPolite = $self[id].isPolite;
+  resetCall(id, false);
+  initializeSelfAndPeerById(id, isPolite);
+  $self[id].isSuppressingInitialOffer = isPolite;
 
-  if ($self.isPolite){
-    sc.emit('signal',
-      {description:
-        {type: '_reset'}
-      });
+  establishCallFeatures(id);
+
+  if (isPolite) {
+    sc.emit('signal', { to: id, from: $self.id,
+      signal: { description: { type: '_reset' } } });
   }
-
 }
+
+
 // function to handle chat messages
 function chatFormFun(e) {
   e.preventDefault();
@@ -313,13 +324,15 @@ function handleScConnect() {
 }
 
 function handleScConnectedPeers(ids) {
-  console.log('Heard connected peers event!');
   console.log('Connected peer IDs:', ids.join(', '));
+  setSelfAndPeerById(id, true);
+  establishCallFeatures(id);
 }
 
 function handleScConnectedPeer(id) {
-  console.log('Heard connected peer event!');
   console.log('Connected peer ID:', id);
+  setSelfAndPeerById(id, false);
+  establishCallFeatures(id);
 }
 
 
