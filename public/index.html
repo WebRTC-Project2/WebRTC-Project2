@@ -44,6 +44,20 @@
       <ol id= "music-log"></ol>
       <script src="https://sdk.scdn.co/spotify-player.js"></script>
       <button id="togglePlay">Toggle Play</button>
+      
+      <main id="app">
+        <article id="files-sent">
+          <h2>Send a File</h2>
+          <form id="files-form" action="#null">
+            <label for="files-input">Choose a File</label>
+            <input type="file" id="files-input" name="files-input" />
+            <button type="submit">Send File</button>
+          </form>
+        </article>
+        <article id="files-received">
+          <ul id="files-manifest"></ul>
+        </article>
+      </main>
       <script>
 
         //Initialization of Web Playback SDK for Spotify
