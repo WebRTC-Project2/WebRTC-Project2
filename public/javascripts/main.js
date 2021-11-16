@@ -64,7 +64,6 @@ audbutton.addEventListener('click',
 
 function createVideoElement(id) {
   const figure = document.createElement('figure');
-  const figcaption = document.createElement('figcaption');
   const video = document.createElement('video');
   const video_attrs = {
     'autoplay': '',
@@ -72,7 +71,6 @@ function createVideoElement(id) {
 
   };
   figure.id = `peer-${id}`;
-  figcaption.innerText = id;
   for (let attr in video_attrs) {
     video.setAttribute(attr, video_attrs[attr]);
   }
@@ -80,6 +78,7 @@ function createVideoElement(id) {
   figure.appendChild(figcaption);
   return figure;
 }
+
 function displayStream(selector, stream) {
   let vid_elm = document.querySelector(selector);
   if (!vid_elm) {
@@ -157,7 +156,7 @@ function joinCall() {
 
 function leaveCall() {
   sc.close();
-  for (let i in $peers) {
+  for (let id in $peers) {
     resetCall(id, true);
   }
 }
@@ -230,34 +229,45 @@ function appendMessage (sender, message){
 
 }
 
-
-
-
 /* WebRTC Events */
 
 //function that handles all the connection
 function establishCallFeatures(id) {
+
+  registerRtcEvents(id);
+  addStreamingMedia(id, $self.stream);
+
+  // //vdieo track
+  //   peer.connection
+  //     .addTrack($self.stream.getTracks()[0],
+  //       $self.stream);
+  // //audio track
+  //   peer.connection
+  //     .addTrack($self.stream.getTracks()[1],
+  //       $self.stream);
+  //
+  //   peer.chatChannel = peer.connection
+  //     .createDataChannel('chat',
+  //       { negotiated: true, id: 25});
+  //
+  //   peer.chatChannel.onmessage = function({ data }){
+  //     appendMessage('peer', data);
+  //
+  //   }
+  // }
+
+
+}
+
+function addStreamingMedia(id, stream) {
   const peer = $peers[id];
-  registerRtcEvents(peer);
-
-//vdieo track
-  peer.connection
-    .addTrack($self.stream.getTracks()[0],
-      $self.stream);
-//audio track
-  peer.connection
-    .addTrack($self.stream.getTracks()[1],
-      $self.stream);
-
-  peer.chatChannel = peer.connection
-    .createDataChannel('chat',
-      { negotiated: true, id: 25});
-
-  peer.chatChannel.onmessage = function({ data }){
-    appendMessage('peer', data);
-
+  if (stream) {
+    for (let track of stream.getTracks()) {
+      peer.connection.addTrack(track, stream);
+    }
   }
 }
+
 
 function registerRtcEvents(id) {
   const peer = $peers[id];
@@ -272,6 +282,7 @@ function registerRtcEvents(id) {
   peer.connection
     .ondatachannel = handleRtcDataChannel(id);
 }
+
 
 async function handleRtcNegotiation(id) {
   return async function() {
@@ -366,6 +377,7 @@ function handleScDisconnectedPeer(id) {
 }
 
 async function handleScSignal({ from, signal: {description, candidate } }) {
+  const id = from;
   const peer = $peers[id];
   console.log('Heard signal event!');
   if (description) {
@@ -407,10 +419,8 @@ async function handleScSignal({ from, signal: {description, candidate } }) {
         const response = await peer.connection.createResponse();//running with older options
         await peer.connection.setLocalDescription(response);
       } finally{
-        sc.emit('signal',
-          { description:
-            $peer.connection.localDescription });//desicing and sending description
-
+        sc.emit('signal', { to: id, from: $self.id, signal:
+          { description: peer.connection.localDescription } });
         $self[id].isSuppressingInitialOffer = false;
       }
     }
