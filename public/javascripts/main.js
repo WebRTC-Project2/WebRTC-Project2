@@ -71,6 +71,7 @@ function createVideoElement(id) {
 
   };
   figure.id = `peer-${id}`;
+  figcaption.innerText = id;
   for (let attr in video_attrs) {
     video.setAttribute(attr, video_attrs[attr]);
   }
