@@ -61,9 +61,34 @@ audbutton.addEventListener('click',
  stopAud);
 
 /* User-Media/DOM */
+
+function createVideoElement(id) {
+  const figure = document.createElement('figure');
+  const figcaption = document.createElement('figcaption');
+  const video = document.createElement('video');
+  const video_attrs = {
+    'autoplay': '',
+    'playsinline': '',
+
+  };
+  figure.id = `peer-${id}`;
+  figcaption.innerText = id;
+  for (let attr in video_attrs) {
+    video.setAttribute(attr, video_attrs[attr]);
+  }
+  figure.appendChild(video);
+  figure.appendChild(figcaption);
+  return figure;
+}
 function displayStream(selector, stream) {
-  const video = document.querySelector(selector);
+  let vid_elm = document.querySelector(selector);
+  if (!vid_elm) {
+    let id = selector.split('#peer-')[1];
+    vid_elm = createVideoElement(id);
+  }
+  let video = vid_elm.querySelector('video');
   video.srcObject = stream;
+  document.querySelector('#videos').appendChild(vid_elm);
 }
 
 
@@ -138,11 +163,16 @@ function leaveCall() {
 }
 // function that resets the connection
 
-function resetCall(peer) {
-  displayStream('#peer', null);
+function resetCall(id, disconnect) {
+  const peer = $peers[id];
+  const videoSelector = `#peer-${id}`;
+  displayStream(videoSelector, null);
   peer.connection.close();
-  peer.connection = new RTCPeerConnection($self.rtcConfig);
-
+  if (disconnect) {
+    document.querySelector(videoSelector).remove();
+    delete $self[id];
+    delete $peers[id];
+  }
 }
 // function that resets the connection and establishes it again
 
