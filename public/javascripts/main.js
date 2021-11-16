@@ -236,7 +236,10 @@ function appendMessage (sender, message){
 /* WebRTC Events */
 
 //function that handles all the connection
-function establishCallFeatures(peer) {
+function establishCallFeatures(id) {
+  const peer = $peers[id];
+  registerRtcEvents(peer);
+
 //vdieo track
   peer.connection
     .addTrack($self.stream.getTracks()[0],
@@ -256,54 +259,70 @@ function establishCallFeatures(peer) {
   }
 }
 
-function registerRtcEvents(peer) {
+function registerRtcEvents(id) {
+  const peer = $peers[id];
   peer.connection
-    .onnegotiationneeded = handleRtcNegotiation;
+    .onconnectionstatechange = handleRtcStateChange(id);
   peer.connection
-    .onicecandidate = handleIceCandidate;
+    .onnegotiationneeded = handleRtcNegotiation(id);
   peer.connection
-    .ontrack = handleRtcTrack;
+    .onicecandidate = handleIceCandidate(id);
   peer.connection
-    .ondatachannel = handleRtcDataChannel;
+    .ontrack = handleRtcTrack(id);
+  peer.connection
+    .ondatachannel = handleRtcDataChannel(id);
 }
 
-async function handleRtcNegotiation() {
-  if ($self.isSuppressingInitialOffer)
-  return;
-  console.log('RTC negotiation needed...');
-  // send an SDP description
-
-  try {
-    $self.isMakingOffer = true;
-    await $peer.connection.setLocalDescription();//running with the new options
-  } catch(e) {
-    const request = await $peer.connection.createOffer();// running with the old optinos
-    await $peer.connection.setLocalDescription(request);
-  } finally {
-    sc.emit('signal', { description:
-      $peer.connection.localDescription });//deciding and making offer
-    $self.isMakingOffer = false;
+async function handleRtcNegotiation(id) {
+  return async function() {
+    const peer = $peers[id];
+    if ($self[id].isSuppressingInitialOffer) return;
+    try {
+      $self[id].isMakingOffer = true;
+      await peer.connection.setLocalDescription();
+    } catch(e) {
+      const offer = await peer.connection.createOffer();
+      await peer.connection.setLocalDescription(offer);
+    } finally {
+      sc.emit('signal',
+        { to: id, from: $self.id,
+          signal: { description: peer.connection.localDescription } });
+      $self[id].isMakingOffer = false;
+    }
   }
 }
-function handleIceCandidate({ candidate }) {
-  sc.emit('signal', { candidate:
-    candidate });
+function handleIceCandidate( id ) {
+  return function({ candidate }) {
+    console.log('MY ICE CANDIDATE', candidate);
+    sc.emit('signal', { to: id, from: $self.id,
+      signal: { candidate: candidate } });
+  }
 }
-function handleRtcTrack({ track, streams: [stream] }) {
-  // attach incoming track to the DOM
-  displayStream('#peer', stream);
+function handleRtcStateChange(id) {
+  return function() {
+    const connectionState = $peers[id].connection.connectionState;
+    document.querySelector(`#peer-${id}`).className = connectionState;
+  }
+}
+function handleRtcTrack(id) {
+  return function({ track, streams: [stream] }) {
+    console.log('Attempt to display media from peer...');
+    displayStream(`#peer-${id}`, stream);
+  }
 }
 
-function handleRtcDataChannel({ channel }) {
-  const dc = channel;
-  console.log('Heard channel', dc.label,
-    'with ID', dc.id);
-  document.querySelector('#peer')
-    .className = dc.label;
-  dc.onopen = function() {
-    console.log('Now I have heard the channel open');
-    dc.close();
-  };
+function handleRtcDataChannel(id) {
+  return function({ channel }) {
+    const label = channel.label;
+    console.log(`Data channel added for ${label}`);
+    if (label.startsWith('username-')) {
+      document.querySelector(`#peer-${id} figcaption`)
+        .innerText = label.split('username-')[1];
+      channel.onopen = function() {
+        channel.close();
+      };
+    }
+  }
 }
 
 /* Signaling Channel Events */
@@ -324,9 +343,13 @@ function handleScConnect() {
 }
 
 function handleScConnectedPeers(ids) {
-  console.log('Connected peer IDs:', ids.join(', '));
-  setSelfAndPeerById(id, true);
-  establishCallFeatures(id);
+  console.log('Already-connected peer IDs', ids.join(', '));
+  for (let id of ids) {
+    if (id !== $self.id) {
+      initializeSelfAndPeerById(id, true);
+      establishCallFeatures(id);
+    }
+  }
 }
 
 function handleScConnectedPeer(id) {
@@ -342,60 +365,61 @@ function handleScDisconnectedPeer(id) {
 
 }
 
-async function handleScSignal({ description, candidate }) {
+async function handleScSignal({ from, signal: {description, candidate } }) {
+  const peer = $peers[id];
   console.log('Heard signal event!');
   if (description) {
     console.log('Received SDP Signal:', description);
 
   if (description.type === '_reset'){
-    resetAndConnectAgain($peer);
+    resetAndConnectAgain(id);
     return;
   }
     const readyForOffer =
-        !$self.isMakingOffer &&
+        !$self[id].isMakingOffer &&
         ($peer.connection.signalingState === 'stable'
-          || $self.isSettingRemoteAnswerPending);
+          || $self[id].isSettingRemoteAnswerPending);
 
     const offerCollision = description.type === 'offer' && !readyForOffer;
 
-    $self.isIgnoringOffer = !$self.isPolite && offerCollision;
+    $self[id].isIgnoringOffer = !$self[id].isPolite && offerCollision;
 
-    if ($self.isIgnoringOffer) {
+    if ($self[id].isIgnoringOffer) {
       return;
     }
 
-    $self.isSettingRemoteAnswerPending = description.type === 'answer';
+    $self[id].isSettingRemoteAnswerPending = description.type === 'answer';
     console.log('Incoming info:',
-         $peer.connection.signalingState);
+         peer.connection.signalingState);
        try {
-         await $peer.connection.setRemoteDescription(description);
+         await peer.connection.setRemoteDescription(description);
        } catch(e) {
 
-         resetAndConnectAgain($peer);
+         resetAndConnectAgain(id);
          return;
        }
-    $self.isSettingRemoteAnswerPending = false;
+    $self[id].isSettingRemoteAnswerPending = false;
 
     if (description.type === 'offer') {
       try {
-        await $peer.connection.setLocalDescription(); // running with new options
+        await peer.connection.setLocalDescription(); // running with new options
       } catch(e){
-        const response = await $peer.connection.createResponse();//running with older options
-        await $peer.connection.setLocalDescription(response);
+        const response = await peer.connection.createResponse();//running with older options
+        await peer.connection.setLocalDescription(response);
       } finally{
         sc.emit('signal',
           { description:
             $peer.connection.localDescription });//desicing and sending description
 
-        $self.isSuppressingInitialOffer = false;
+        $self[id].isSuppressingInitialOffer = false;
       }
     }
   } else if (candidate) {
     console.log('Received ICE candidate:', candidate);
     try {
-      await $peer.connection.addIceCandidate(candidate);
+      await peer.connection.addIceCandidate(candidate);
     } catch(e) {
-      if (!$self.isIgnoringOffer) {
+      if (!$self[id].isIgnoringOffer) {
         console.error('Cannot add ICE candidate for peer', e);
       }
     }
