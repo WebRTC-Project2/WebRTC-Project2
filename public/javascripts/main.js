@@ -30,7 +30,9 @@ registerScEvents();
 
 /* DOM Elements */
 
+const filesForm = document.querySelector('#files-form');
 
+filesForm.addEventListener('submit', handleFilesForm);
 
 const button = document
   .querySelector('#call-button');
@@ -53,6 +55,86 @@ chatForm.addEventListener('submit',
 vidButton.addEventListener('click',
  stopVid);
 
+ function handleFilesForm(event){
+  event.preventDefault();
+  const form = event.target;
+  const fileInput = form.querySelector('#files-input');
+  const file = fileInput.files[0];
+  console.log('Got a file with the name', file.name);
+  sendFile($peer,file);
+ }
+
+ function sendFile(peer, file) {
+  // create a package of file metadata
+  const metadata = {
+    name: file.name,
+    size: file.size,
+    type: file.type
+  };
+  const chunk = 8 * 1024; // 8KiB (kibibyte)
+  // console.log(JSON.stringify(metadata));
+  // create an asymmetric data channel
+  const fdc = peer.connection
+    .createDataChannel(`file-${metadata.name}`);
+
+
+  if (
+    !$peer.features ||
+    ($self.features.binaryType !== $peer.features.binaryType)
+  ) {
+    fdc.binaryType = 'arraybuffer';
+  }
+  console.log(`Lets use the ${fdc.binaryType} data type!`);
+
+
+  fdc.onopen = async function() {
+    // send the metadata, once the data channel opens
+    console.log('Created a data channel with ID', fdc.id);
+    console.log('Heard datachannel open event.')
+    console.log('Use chunk size', chunk);
+    fdc.send(JSON.stringify(metadata));
+
+    // send the actual file data
+    let data =
+      fdc.binaryType === 'blob' ? file : await file.arrayBuffer();
+      console.log(metadata.size);
+    for(let i = 0; i < metadata.size; i += chunk) {
+      console.log('Attempting to send a chunk of data...');
+      fdc.send(data.slice(i, i + chunk));
+    }
+
+  };
+  fdc.onmessage = function({ data }) {
+    // handle an acknowledgement from the receiving peer
+    let message = JSON.parse(data);
+    console.log('Successfully sent file', message.name);
+    console.log('Closing the data channel');
+    fdc.close();
+  }
+}
+
+ function receivedFile(fdc){
+    const chunk = [];
+    let receivedBytes = 0;
+    let metadata;
+    fdc.onmessage = function({data}){
+      let message = data;
+      if (typeof(message) === 'string' && message.startsWith('{')){
+        metadata = JSON.parse(message);
+        console.log(`received metadata ${message}`)
+      }
+      else{
+        console.log('Received file data')
+        chunk.push(data);
+        receivedBytes += data.size ? data.size : data.byteLength;
+        console.log('Received bytes so far', receivedBytes);
+      }
+      if (receivedBytes === metadata.size){
+        console.log('File transfer complete');
+      }
+    }
+
+  }
 
 const audbutton = document
    .querySelector('#audio-button');
@@ -188,7 +270,23 @@ function appendMessage (sender, message){
 
 }
 
+/* Data channels */
 
+function addFeatureChannel(peer){
+  const fc = peer.connection.createDataChannel('features',
+  {negotiated: true, id: 50});
+  fc.onopen = function() {
+    console.log('features channel has opened');
+    console.log('Binary type', fc.binaryType);
+    $self.features = {
+      binaryType: fc.binaryType
+    }
+    fc.send(JSON.stringify($self.features))
+  }
+  fc.onmessage = function ({data}){
+    peer.features = JSON.parse(data);
+  }
+}
 
 
 /* WebRTC Events */
@@ -212,6 +310,7 @@ function establishCallFeatures(peer) {
     appendMessage('peer', data);
 
   }
+  addFeatureChannel(peer);
 }
 
 function registerRtcEvents(peer) {
@@ -262,6 +361,9 @@ function handleRtcDataChannel({ channel }) {
     console.log('Now I have heard the channel open');
     dc.close();
   };
+  if (dc.label.startsWith('file-')){
+    receivedFile(channel);
+  }
 }
 
 /* Signaling Channel Events */
