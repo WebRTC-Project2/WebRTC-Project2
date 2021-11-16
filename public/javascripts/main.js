@@ -274,6 +274,13 @@ function registerScEvents() {
   sc.on('disconnected peer', handleScDisconnectedPeer)
 }
 
+function handleSongReceive(data) {
+  console.log("song received");
+  if (data.namespace == namespace) {
+    showSpotifyPlayer(data.url);
+  }
+}
+
 
 function handleScConnect() {
   console.log('Connected to signaling channel!');
@@ -371,4 +378,27 @@ function prepareNamespace(hash, set_location) {
   console.log('Created new namespace', ns);
   if (set_location) window.location.hash = ns;
   return ns;
+}
+
+function showSpotifyPlayer(url) {
+  let node = document.getElementById("spotify-iframe");
+  node.innerHTML = `<iframe src="${url}" id="spotify-player" style="width:100%;bottom:0;" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
+}
+function uploadSpotifyUrl() {
+  let song_url = document.getElementById("song-url").value;
+  if (!song_url.includes("https://open.spotify.com/")) {
+    alert("not a valid spotify embed url");
+    return false;
+  }
+  song_url=song_url.replace(".com/",".com/embed/");
+  showSpotifyPlayer(song_url);
+  if (sc.connected) {
+    console.log("sending the song url");
+    sc.emit('uploadsong',
+      {
+        url: song_url,
+        namespace: namespace
+      });
+  }
+  return false;
 }
