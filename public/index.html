@@ -17,7 +17,7 @@
       <video
         autoplay
         muted
-        playsinline>
+        playsinline
       </video>
     </figure>
   </article>
@@ -28,24 +28,34 @@
 
 
   <article id="chatbox">
-      <h2 class="chat-access">Chat</h2>
+      <h2 class"chat-access"> Chat Area </h2>
       <ol id= "chat-log"></ol>
       <form id="chat-form" action="#null">
         <label for="chat-msg" class="chat-access">Compose Message</label>
         <input type="text" id="chat-msg" name="chat-msg" autocomplete="off" />
         <button type="submit" class="send" id="chat-btn">Send</button>
+
       </form>
   </article>
-
+</article>
  <div id="spotify-iframe"></div>
- <article id="spotify">
+ <article id="chatbox">
+     <h2 class"chat-access"> Chat Area </h2>
+     <ol id= "chat-log"></ol>
+     <form id="chat-form" action="#null">
+       <label for="chat-msg" class="chat-access">Compose Message</label>
+       <input type="text" id="chat-msg" name="chat-msg" autocomplete="off" />
+       <button type="submit" class="send" id="chat-btn">Send</button>
+
+     </form>
+
      <form onsubmit="return uploadSpotifyUrl()">
        <label for="chat-msg" class="chat-access">Spotify Song URL</label>
        <input type="url" id="song-url" name="chat-msg" autocomplete="off" required/>
        <input type="submit" class="send" value="Play"></input>
      </form>
+
  </article>
- 
        <main id="app">
        <article id="files-sent">
          <h2>Send a File</h2>
