@@ -24,26 +24,27 @@ namespaces.on('connection', function(socket) {
   const namespace = socket.nsp;
   const multipeers = [];
 
-  for (let i of namespace.sockets.keys()){
+  for (let i of namespace.sockets.keys()) {
     multipeers.push(i);
   }
 
-  //send id's of new connection to connecor
-  socket.emit('connected peer',multipeers);
+  // send id's of new connection to connecor
+  socket.emit('connected peers', multipeers);
 
-  //peer id to all connected peers
+  // peer id to all connected peers
   socket.broadcast.emit('connected peer', socket.id);
 
-
-  // listen for signals
+  // listen for  signals
   socket.on('signal', function({ to, from, signal }) {
     socket.to(to).emit('signal', { to, from, signal });
   });
+
   // listen for disconnects
   socket.on('disconnect', function() {
     namespace.emit('disconnected peer', socket.id);
   })
 
 });
+
 
 module.exports = { app, io };

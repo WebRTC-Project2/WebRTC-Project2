@@ -2,165 +2,163 @@
 
 const $self = {
   rtcConfig: null,
-  constraints: { audio: true, video: true},
-
+  mediaConstraints: { audio: false, video: true }
 };
 
-const $peers = {
-};
+const $peers = {};
 
-requestUserMedia($self.constraints);
+requestUserMedia($self.mediaConstraints);
 
-async function requestUserMedia(constraints) {
-  $self.stream = await navigator.mediaDevices
-    .getUserMedia(constraints);
+async function requestUserMedia(media_constraints) {
+  $self.stream = new MediaStream();
+  $self.media = await navigator.mediaDevices
+    .getUserMedia(media_constraints);
+  $self.stream.addTrack($self.media.getTracks()[0]);
   displayStream('#self', $self.stream);
 }
 
-
 /**
-* Socket Server Events and Callbacks
-*/
+ *  Socket Server Events and Callbacks
+ */
+
 const namespace = prepareNamespace(window.location.hash, true);
 
 const sc = io(`/${namespace}`, { autoConnect: false });
 
 registerScEvents();
 
-
 /* DOM Elements */
 
+  const button = document
+    .querySelector('#call-button');
+
+  button.addEventListener('click',
+   handleButton);
+
+  const selfVideo = document
+    .querySelector('#self');
 
 
-const button = document
-  .querySelector('#call-button');
+  const chatForm = document
+  .querySelector('#chat-form');
 
-const selfVideo = document
-  .querySelector('#self');
+  chatForm.addEventListener('submit',
+   chatFormFun);
 
-button.addEventListener('click', handleButton);
+   const vidButton = document
+     .querySelector('#video-button');
 
-
-const chatForm = document
-.querySelector('#chat-form');
-
-chatForm.addEventListener('submit',
- chatFormFun);
-
- const vidButton = document
-   .querySelector('#video-button');
-
-vidButton.addEventListener('click',
- stopVid);
+  vidButton.addEventListener('click',
+   stopVid);
 
 
-const audbutton = document
-   .querySelector('#audio-button');
+  const audbutton = document
+     .querySelector('#audio-button');
 
-audbutton.addEventListener('click',
- stopAud);
+  audbutton.addEventListener('click',
+   stopAud);
+
 
 /* User-Media/DOM */
 
-function createVideoElement(id) {
-  const figure = document.createElement('figure');
-  const video = document.createElement('video');
-  const video_attrs = {
-    'autoplay': '',
-    'playsinline': '',
+ function createVideoElement(id) {
+   const figure = document.createElement('figure');
+   const figcaption = document.createElement('figcaption');
+   const video = document.createElement('video');
+   const video_attrs = {
+     'autoplay': '',
+     'playsinline': '',
 
-  };
-  figure.id = `peer-${id}`;
-  figcaption.innerText = id;
-  for (let attr in video_attrs) {
-    video.setAttribute(attr, video_attrs[attr]);
-  }
-  figure.appendChild(video);
-  figure.appendChild(figcaption);
-  return figure;
-}
+   };
+   figure.id = `peer-${id}`;
+   figcaption.innerText = id;
+   for (let attr in video_attrs) {
+     video.setAttribute(attr, video_attrs[attr]);
+   }
+   figure.appendChild(video);
+   figure.appendChild(figcaption);
+   return figure;
+ }
 
-function displayStream(selector, stream) {
-  let vid_elm = document.querySelector(selector);
-  if (!vid_elm) {
-    let id = selector.split('#peer-')[1];
-    vid_elm = createVideoElement(id);
-  }
-  let video = vid_elm.querySelector('video');
-  video.srcObject = stream;
-  document.querySelector('#videos').appendChild(vid_elm);
-}
+ function displayStream(selector, stream) {
+   let video_element = document.querySelector(selector);
+   if (!video_element) {
+     let id = selector.split('#peer-')[1]; // #peer-abc123
+     video_element = createVideoElement(id);
+   }
+   let video = video_element.querySelector('video');
+   video.srcObject = stream;
+   document.querySelector('#videos').appendChild(video_element);
+ }
 
+ /* DOM Events */
+ //function for Audio on and off button
+ function stopAud(e){
 
-/* DOM Events */
-//function for Audio on and off button
-function stopAud(e){
+   const audSt = $self.stream.getAudioTracks()[0];
+   const audbutton = e.target;
+   if (audbutton.className === 'audiocut') {
+     audbutton.className = 'mute';
+     audbutton.innerText = 'UnMute';
+     audSt.enabled = false;
+     console.log('Audio Stopped');
+   } else {
+     audbutton.className = 'audiocut';
+     audbutton.innerText = 'Mute';
+     audSt.enabled = true;
+     console.log('Audio Started');
+   }
 
-  const audSt = $self.stream.getAudioTracks()[0];
-  const audbutton = e.target;
-  if (audbutton.className === 'audiocut') {
-    audbutton.className = 'mute';
-    audbutton.innerText = 'UnMute';
-    audSt.enabled = false;
-    console.log('Audio Stopped');
-  } else {
-    audbutton.className = 'audiocut';
-    audbutton.innerText = 'Mute';
-    audSt.enabled = true;
-    console.log('Audio Started');
-  }
+ }
+ //function for the vido on and off button
+ function stopVid(e) {
 
-}
-//function for the vido on and off button
-function stopVid(e) {
-
-  const vidSt = $self.stream.getVideoTracks()[0];
-  const vidButton = e.target;
-  if (vidButton.className === 'videocut') {
-    vidButton.className = 'vidOff';
-    vidButton.innerText = 'Video ON';
-    vidSt.enabled = false;
-      console.log('Video Stopped');
-  } else {
-    vidButton.className = 'videocut';
-    vidButton.innerText = 'Video Off';
-    vidSt.enabled = true;
-      console.log('Video Started');
-  }
-}
+   const vidSt = $self.stream.getVideoTracks()[0];
+   const vidButton = e.target;
+   if (vidButton.className === 'videocut') {
+     vidButton.className = 'vidOff';
+     vidButton.innerText = 'Video ON';
+     vidSt.enabled = false;
+       console.log('Video Stopped');
+   } else {
+     vidButton.className = 'videocut';
+     vidButton.innerText = 'Video Off';
+     vidSt.enabled = true;
+       console.log('Video Started');
+   }
+ }
 
 //adding eventlistener with the function in it to pause the video
 
 
 //function for join and leave call
-function handleButton(e) {
-  const button = e.target;
-  if (button.className === 'join') {
-    button.className = 'leave';
-    button.innerText = 'Leave Call';
+function handleButton(event) {
+  const callButton = event.target;
+  if (callButton.className === 'join') {
+    console.log('Joining the call...');
+    callButton.className = 'leave';
+    callButton.innerText = 'Leave Call';
     joinCall();
   } else {
-    button.className = 'join';
-    button.innerText = 'Join Call';
+    console.log('Leaving the call...');
+    callButton.className = 'join';
+    callButton.innerText = 'Join Call';
     leaveCall();
   }
 }
-
-
 // function that joins the call
 function joinCall() {
   sc.open();
-
 }
 
 // function that joins the call
-
 function leaveCall() {
   sc.close();
   for (let id in $peers) {
     resetCall(id, true);
   }
 }
+
 // functions that resets the connection
 
 function setSelfAndPeerById(id, politeness) {
@@ -175,7 +173,6 @@ function setSelfAndPeerById(id, politeness) {
   }
 }
 
-
 function resetCall(id, disconnect) {
   const peer = $peers[id];
   const videoSelector = `#peer-${id}`;
@@ -187,12 +184,13 @@ function resetCall(id, disconnect) {
     delete $peers[id];
   }
 }
+
 // function that resets the connection and establishes it again
 
 function resetAndConnectAgain(id) {
   const isPolite = $self[id].isPolite;
   resetCall(id, false);
-  initializeSelfAndPeerById(id, isPolite);
+  setSelfAndPeerById(id, isPolite);
   $self[id].isSuppressingInitialOffer = isPolite;
 
   establishCallFeatures(id);
@@ -202,7 +200,6 @@ function resetAndConnectAgain(id) {
       signal: { description: { type: '_reset' } } });
   }
 }
-
 
 // function to handle chat messages
 function chatFormFun(e) {
@@ -230,43 +227,35 @@ function appendMessage (sender, message){
 
 }
 
-/* WebRTC Events */
+/* WebRTC Events*/
 
 //function that handles all the connection
 function establishCallFeatures(id) {
-
   registerRtcEvents(id);
   addStreamingMedia(id, $self.stream);
-
-  // //vdieo track
-  //   peer.connection
-  //     .addTrack($self.stream.getTracks()[0],
-  //       $self.stream);
-  // //audio track
-  //   peer.connection
-  //     .addTrack($self.stream.getTracks()[1],
-  //       $self.stream);
-  //
-  //   peer.chatChannel = peer.connection
-  //     .createDataChannel('chat',
-  //       { negotiated: true, id: 25});
-  //
-  //   peer.chatChannel.onmessage = function({ data }){
-  //     appendMessage('peer', data);
-  //
-  //   }
-  // }
-
-
+  if ($self.username) {
+    shareUsername($self.username, id);
+  }
 }
+
 
 function addStreamingMedia(id, stream) {
   const peer = $peers[id];
+
   if (stream) {
     for (let track of stream.getTracks()) {
       peer.connection.addTrack(track, stream);
     }
   }
+
+    peer.chatChannel = peer.connection
+     .createDataChannel('chat',
+       { negotiated: true, id: 25});
+
+    peer.chatChannel.onmessage = function({ data }){
+       appendMessage('peer', data);
+
+     }
 }
 
 
@@ -284,8 +273,7 @@ function registerRtcEvents(id) {
     .ondatachannel = handleRtcDataChannel(id);
 }
 
-
-async function handleRtcNegotiation(id) {
+function handleRtcNegotiation(id) {
   return async function() {
     const peer = $peers[id];
     if ($self[id].isSuppressingInitialOffer) return;
@@ -303,19 +291,22 @@ async function handleRtcNegotiation(id) {
     }
   }
 }
-function handleIceCandidate( id ) {
+
+function handleIceCandidate(id) {
   return function({ candidate }) {
     console.log('MY ICE CANDIDATE', candidate);
     sc.emit('signal', { to: id, from: $self.id,
       signal: { candidate: candidate } });
   }
 }
+
 function handleRtcStateChange(id) {
   return function() {
     const connectionState = $peers[id].connection.connectionState;
     document.querySelector(`#peer-${id}`).className = connectionState;
   }
 }
+
 function handleRtcTrack(id) {
   return function({ track, streams: [stream] }) {
     console.log('Attempt to display media from peer...');
@@ -337,61 +328,62 @@ function handleRtcDataChannel(id) {
   }
 }
 
-/* Signaling Channel Events */
+
+/*  Signaling Channel Events */
+
 
 function registerScEvents() {
   sc.on('connect', handleScConnect);
   sc.on('connected peer', handleScConnectedPeer);
   sc.on('connected peers', handleScConnectedPeers);
+  sc.on('disconnected peer', handleScDisconnectedPeer);
   sc.on('signal', handleScSignal);
-  sc.on('disconnected peer', handleScDisconnectedPeer)
 }
 
-
 function handleScConnect() {
-  console.log('Connected to signaling channel!');
+  console.log('Successfully connected to the signaling server!');
   $self.id = sc.id;
-  console.log('Self ID:', $self.id);
 }
 
 function handleScConnectedPeers(ids) {
-  console.log('Already-connected peer IDs', ids.join(', '));
+  console.log('Received already-connected peer IDs', ids.join(', '));
   for (let id of ids) {
     if (id !== $self.id) {
-      initializeSelfAndPeerById(id, true);
+      setSelfAndPeerById(id, true);
       establishCallFeatures(id);
     }
   }
 }
 
 function handleScConnectedPeer(id) {
-  console.log('Connected peer ID:', id);
+  console.log('Heard new connected peer ID:', id);
   setSelfAndPeerById(id, false);
   establishCallFeatures(id);
 }
-
 
 function handleScDisconnectedPeer(id) {
   console.log('Heard disconnected peer event!');
   console.log('Disconnected peer ID:', id);
 
+  resetCall(id, true);
 }
 
-async function handleScSignal({ from, signal: {description, candidate } }) {
+
+
+async function handleScSignal({ from, signal: { description, candidate } }) {
   const id = from;
   const peer = $peers[id];
-  console.log('Heard signal event!');
   if (description) {
-    console.log('Received SDP Signal:', description);
 
-  if (description.type === '_reset'){
-    resetAndConnectAgain(id);
-    return;
-  }
+    if (description.type === '_reset') {
+      resetAndConnectAgain(id);
+      return;
+    }
+
     const readyForOffer =
-        !$self[id].isMakingOffer &&
-        ($peer.connection.signalingState === 'stable'
-          || $self[id].isSettingRemoteAnswerPending);
+          !$self[id].isMakingOffer &&
+          (peer.connection.signalingState === 'stable'
+            || $self[id].isSettingRemoteAnswerPending);
 
     const offerCollision = description.type === 'offer' && !readyForOffer;
 
@@ -402,52 +394,56 @@ async function handleScSignal({ from, signal: {description, candidate } }) {
     }
 
     $self[id].isSettingRemoteAnswerPending = description.type === 'answer';
-    console.log('Incoming info:',
-         peer.connection.signalingState);
-       try {
-         await peer.connection.setRemoteDescription(description);
-       } catch(e) {
-
-         resetAndConnectAgain(id);
-         return;
-       }
+    try {
+      console.log('Signaling state on incoming description:',
+        peer.connection.signalingState);
+      await peer.connection.setRemoteDescription(description);
+    } catch(e) {
+      resetAndConnectAgain(id);
+      return;
+    }
     $self[id].isSettingRemoteAnswerPending = false;
 
     if (description.type === 'offer') {
       try {
-        await peer.connection.setLocalDescription(); // running with new options
-      } catch(e){
-        const response = await peer.connection.createResponse();//running with older options
-        await peer.connection.setLocalDescription(response);
-      } finally{
+        await peer.connection.setLocalDescription();
+      } catch(e) {
+        const answer = await peer.connection.createAnswer();
+        await peer.connection.setLocalDescription(answer);
+      } finally {
         sc.emit('signal', { to: id, from: $self.id, signal:
           { description: peer.connection.localDescription } });
         $self[id].isSuppressingInitialOffer = false;
       }
     }
   } else if (candidate) {
-    console.log('Received ICE candidate:', candidate);
     try {
+      console.log(`INCOMING ICE CANDIDATE for ${id}`, candidate);
       await peer.connection.addIceCandidate(candidate);
     } catch(e) {
-      if (!$self[id].isIgnoringOffer) {
-        console.error('Cannot add ICE candidate for peer', e);
+      // Log error unless $self[id] is ignoring offers
+      // and candidate is not an empty string
+      if (!$self[id].isIgnoringOffer && candidate.candidate.length > 1) {
+        console.error('Unable to add ICE candidate for peer:', e);
       }
     }
   }
 }
 
+
+
 /**
  *  Utility Functions
  */
-function prepareNamespace(hash, set_location) {
-  let ns = hash.replace(/^#/, ''); // remove # from the hash
-  if (/^[0-9]{6}$/.test(ns)) {
-    console.log('Checked existing namespace', ns);
-    return ns;
-  }
-  ns = Math.random().toString().substring(2, 8);
-  console.log('Created new namespace', ns);
-  if (set_location) window.location.hash = ns;
-  return ns;
-}
+
+ function prepareNamespace(hash, set_location) {
+   let ns = hash.replace(/^#/, ''); // remove # from the hash
+   if (/^[0-9]{6}$/.test(ns)) {
+     console.log('Checked existing namespace', ns);
+     return ns;
+   }
+   ns = Math.random().toString().substring(2, 8);
+   console.log('Created new namespace', ns);
+   if (set_location) window.location.hash = ns;
+   return ns;
+ }

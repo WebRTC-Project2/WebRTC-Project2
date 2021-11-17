@@ -4,11 +4,10 @@
 /**
  * Module dependencies.
  */
- const { readFileSync } = require('fs');
- const { app, io } = require('../app');
- const debug = require('debug')('week-03:server');
- const https = require('https');
-
+const { readFileSync } = require('fs');
+const { app, io } = require('../app');
+const debug = require('debug')('week-03:server');
+const https = require('https');
 
 /**
  * Environment variables.
@@ -37,13 +36,14 @@ var server = https.createServer(config, app);
  * Listen on provided port, on all network interfaces.
  */
 
- // Attach Socket.io instance to our HTTPS server
- io.attach(server);
+// Attach Socket.io instance to our HTTPS server
+io.attach(server);
 
- // Set up server listen events
- server.listen(port);
- server.on('error', onError);
- server.on('listening', onListening);
+// Set up server listen events
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
 /**
  * Normalize a port into a number, string, or false.
  */
