@@ -54,7 +54,7 @@ filesForm.addEventListener('submit', handleFilesForm);
 
   vidButton.addEventListener('click',
    stopVid);
-
+//function for file sharing
     function handleFilesForm(event){
      event.preventDefault();
      const form = event.target;
