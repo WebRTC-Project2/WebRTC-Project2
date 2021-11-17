@@ -42,7 +42,12 @@ namespaces.on('connection', function(socket) {
   // listen for disconnects
   socket.on('disconnect', function() {
     namespace.emit('disconnected peer', socket.id);
-  })
+  });
+
+  //listen for song url update
+ socket.on('uploadsong', function (data) {
+   socket.broadcast.emit('song received', data);
+ });
 
 });
 
