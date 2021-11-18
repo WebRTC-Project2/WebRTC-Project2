@@ -5,8 +5,9 @@ const $self = {
   mediaConstraints: { audio: false, video: true }
 };
 
-const $peers = {};
-
+const $peers = {
+  connection: new RTCPeerConnection($self.rtcConfig)
+};
 requestUserMedia($self.mediaConstraints);
 
 async function requestUserMedia(media_constraints) {
