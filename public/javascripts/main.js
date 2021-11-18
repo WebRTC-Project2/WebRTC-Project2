@@ -202,7 +202,7 @@ filesForm.addEventListener('submit', handleFilesForm);
    const vidButton = e.target;
    if (vidButton.className === 'videocut') {
      vidButton.className = 'vidOff';
-     vidButton.innerText = 'Video ON';
+     vidButton.innerText = 'Video On';
      vidSt.enabled = false;
        console.log('Video Stopped');
    } else {
