@@ -8,6 +8,7 @@ a,abbr,acronym,address,applet,article,aside,audio,b,big,blockquote,body,canvas,c
 
 /* Begin site styles below */
 
+/* Page Layout */
 html {
   font-family: Verdana, Helvetica, Arial, sans-serif;
   font-size: 22px;
@@ -15,18 +16,100 @@ html {
   padding: 13px;
 
 }
+#mainpage {
+  padding: 22px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+#header > h1 {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Buttons and Controls */
+button {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: inherit;
+  line-height: inherit;
+  border: 0;
+  border-radius: 3px;
+  padding: 2.5px 5px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
 .join {
   background-color: green;
   color: white;
 }
 .leave {
-  background-color: #red;
-  color: black;
+  background-color: red;
+  color: white;
+}
+#call-button {
+  box-sizing: border-box;
+  width: 100px;
+}
+.vidOff {
+  background-color: green;
+  color: white;
+}
+.videocut {
+  background-color: rgb(187, 23, 23);
+  color: rgb(255, 255, 255);
+}
+.mute {
+  background-color: green;
+  color: white;
+}
+.audiocut {
+  background-color: rgb(187, 23, 23);
+  color: rgb(255, 255, 255);
+}
+#video-button {
+  box-sizing: border-box;
+  width: 75px;
+}
+#audio-button {
+  box-sizing: border-box;
+  width: 75px;
 }
 
+/* Videos */
+video {
+  background-color: #DDD;
+  max-width: 100%;
+}
+#videos {
+  max-width: 100%;
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+#self {
+  width: 50%;
+  max-width: 320px;
+  margin-top: 11px;
+  margin-bottom: 11px;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+
+/* Accessibility */
+.preserve-access {
+  position: absolute;
+  left: -20000px;
+}
 
 /* Media Queries */
-
 @media screen and (min-width: 500px) {
   #header {
     display: flex;
