@@ -424,6 +424,7 @@ function registerScEvents() {
   sc.on('connected peers', handleScConnectedPeers);
   sc.on('disconnected peer', handleScDisconnectedPeer);
   sc.on('signal', handleScSignal);
+  sc.on('song received', handleSongReceive);
 }
 
 function handleSongReceive(data) {
