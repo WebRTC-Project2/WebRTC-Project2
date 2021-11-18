@@ -10,7 +10,7 @@ a,abbr,acronym,address,applet,article,aside,audio,b,big,blockquote,body,canvas,c
 
 /* Page Layout */
 html {
-  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-family: 'Alegreya', serif;
   font-size: 22px;
   line-height: 26px;
   padding: 13px;
@@ -29,16 +29,18 @@ html {
   margin-left: auto;
   margin-bottom: 15px;
   text-align: center;
+  font-size: 30px;
+  font-weight: 900;
 }
 
 /* Buttons and Controls */
 button {
-  font-family: inherit;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 12px;
-  font-weight: inherit;
+  font-weight: 700;
   line-height: inherit;
   border: 0;
-  border-radius: 3px;
+  border-radius: 5px;
   padding: 2.5px 5px;
   margin-left: auto;
   margin-right: auto;
@@ -49,7 +51,7 @@ button {
   color: white;
 }
 .leave {
-  background-color: red;
+  background-color: rgb(167, 9, 9);
   color: white;
 }
 #call-button {
@@ -61,7 +63,7 @@ button {
   color: white;
 }
 .videocut {
-  background-color: rgb(187, 23, 23);
+  background-color: rgb(167, 9, 9);
   color: rgb(255, 255, 255);
 }
 .mute {
@@ -69,7 +71,7 @@ button {
   color: white;
 }
 .audiocut {
-  background-color: rgb(187, 23, 23);
+  background-color: rgb(167, 9, 9);
   color: rgb(255, 255, 255);
 }
 #video-button {
@@ -101,6 +103,33 @@ video {
   margin-right: auto;
   margin-left: auto;
   text-align: center;
+}
+
+/* Chat */
+#chatbox {
+  padding: 10px;
+  box-sizing: border-box;
+}
+#chat-log {
+  box-sizing: border-box;
+  width: 300px;
+  border: solid#2c4e4e;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+#chat-log .peer {
+  background:#DDD;
+}
+#chat-log .self {
+  background: #98c2c2;
+}
+#chat-msg {
+  padding: 5px;
+  width: 200px;
+}
+#chat-btn {
+  width: 50px;
+  position: relative;
 }
 
 /* Accessibility */
