@@ -47,9 +47,6 @@ filesForm.addEventListener('submit', handleFilesForm);
   const chatForm = document
   .querySelector('#chat-form');
 
-  chatForm.addEventListener('submit',
-   chatFormFun);
-
    const vidButton = document
      .querySelector('#video-button');
 
@@ -287,22 +284,7 @@ function resetAndConnectAgain(id) {
   }
 }
 
-// function to handle chat messages
-function chatFormFun(e) {
-  e.preventDefault();
 
-  const form = e.target;
-  const userInput = document.querySelector('#chat-msg');
-  const message = userInput.value;
-
-  appendMessage('self', message);
-
-  $peer.chatChannel.send(message);
-
-  console.log ('customer message ', message);
-  userInput.value = '';
-
-}
 //function to show messages
 function appendMessage (sender, message){
   const log = document.querySelector('#chat-log');
@@ -446,6 +428,28 @@ function handleScConnectedPeers(ids) {
       setSelfAndPeerById(id, true);
       establishCallFeatures(id);
     }
+  }
+
+  chatForm.addEventListener('submit',
+     chatFormFun);
+  // function to handle chat messages
+  function chatFormFun(e) {
+    e.preventDefault();
+    //const peer = $peers[id];
+    const form = e.target;
+    const userInput = document.querySelector('#chat-msg');
+    const message = userInput.value;
+
+    appendMessage('self', message);
+
+    for (let id of ids) {
+      if (id !== $self.id) {
+        $peers[id].chatChannel.send(message);
+    } }
+
+    console.log ('customer message ', message);
+    userInput.value = '';
+
   }
 }
 
