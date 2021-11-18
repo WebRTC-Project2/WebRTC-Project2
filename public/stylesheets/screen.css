@@ -39,6 +39,11 @@ html {
   color: black;
 }
 
+/* Accessibility */
+.preserve-access {
+  position: absolute;
+  left: -20000px;
+}
 
 /* Media Queries */
 
