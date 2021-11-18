@@ -81,6 +81,26 @@ button {
   width: 75px;
 }
 
+/* Videos */
+video {
+  background-color: #DDD;
+  max-width: 100%;
+}
+#videos {
+  max-width: 100%;
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+#self {
+  width: 50%;
+  max-width: 320px;
+  margin-top: 11px;
+  margin-bottom: 11px;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
 }
 
 /* Accessibility */
@@ -90,7 +110,6 @@ button {
 }
 
 /* Media Queries */
-
 @media screen and (min-width: 500px) {
   #header {
     display: flex;
