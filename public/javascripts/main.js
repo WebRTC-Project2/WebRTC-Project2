@@ -425,6 +425,13 @@ function registerScEvents() {
   sc.on('signal', handleScSignal);
 }
 
+function handleSongReceive(data) {
+  console.log("song received");
+  if (data.namespace == namespace) {
+    showSpotifyPlayer(data.url);
+  }
+}
+
 function handleScConnect() {
   console.log('Successfully connected to the signaling server!');
   $self.id = sc.id;
