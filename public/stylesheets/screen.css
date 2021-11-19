@@ -16,6 +16,10 @@ html {
   padding: 13px;
 
 }
+#container {
+  margin: 0 auto;
+  position: relative;
+}
 #mainpage {
   padding: 22px;
   width: 100%;
@@ -23,7 +27,7 @@ html {
   margin-right: auto;
   text-align: center;
 }
-#header > h1 {
+#title {
   width: 100%;
   margin-right: auto;
   margin-left: auto;
@@ -31,6 +35,28 @@ html {
   text-align: center;
   font-size: 30px;
   font-weight: 900;
+}
+#logo {
+  height: 120px;
+  width: 120px;
+}
+.wrapper {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: 15px;
+  text-align: center;
+}
+#footer {
+  font-size: small;
+  position: absolute;
+  bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  width: 100%;
+  border-top: 2px solid rgb(214, 214, 214);
+  margin-top: 5px;
 }
 
 /* Buttons and Controls */
@@ -104,20 +130,16 @@ video {
   margin-left: auto;
   text-align: center;
 }
-#logo {
-  height: 80px;
-  width: 80px;
-  display: flex;
-}
+
 /* Chat */
 #chatbox {
   padding: 10px;
   box-sizing: border-box;
+  border: solid #2c4e4e;
+  float: right;
 }
 #chat-log {
-  box-sizing: border-box;
   width: 300px;
-  border: solid#2c4e4e;
   padding: 5px;
   margin-bottom: 5px;
 }
@@ -134,6 +156,18 @@ video {
 #chat-btn {
   width: 50px;
   position: relative;
+}
+.send {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: inherit;
+  border: 0;
+  border-radius: 5px;
+  padding: 2.5px 5px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 /* Accessibility */
