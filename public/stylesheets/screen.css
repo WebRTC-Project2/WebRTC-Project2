@@ -104,7 +104,11 @@ video {
   margin-left: auto;
   text-align: center;
 }
-
+#logo {
+  height: 80px;
+  width: 80px;
+  display: flex;
+}
 /* Chat */
 #chatbox {
   padding: 10px;
