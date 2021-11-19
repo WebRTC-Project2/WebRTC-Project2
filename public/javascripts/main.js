@@ -307,6 +307,7 @@ function establishCallFeatures(id) {
 }
 
 
+
 function addStreamingMedia(id, stream) {
   const peer = $peers[id];
 
@@ -421,7 +422,11 @@ function handleScConnect() {
   $self.id = sc.id;
 }
 
+var globe_ids;
+
 function handleScConnectedPeers(ids) {
+  globe_ids = ids;
+  console.log("GlobeIDs is ",globe_ids);
   console.log('Received already-connected peer IDs', ids.join(', '));
   for (let id of ids) {
     if (id !== $self.id) {
@@ -429,34 +434,41 @@ function handleScConnectedPeers(ids) {
       establishCallFeatures(id);
     }
   }
+}
 
-  chatForm.addEventListener('submit',
-     chatFormFun);
-  // function to handle chat messages
-  function chatFormFun(e) {
-    e.preventDefault();
-    //const peer = $peers[id];
-    const form = e.target;
-    const userInput = document.querySelector('#chat-msg');
-    const message = userInput.value;
 
-    appendMessage('self', message);
-
-    for (let id of ids) {
-      if (id !== $self.id) {
-        $peers[id].chatChannel.send(message);
-    } }
-
-    console.log ('customer message ', message);
-    userInput.value = '';
-
+chatForm.addEventListener('submit',
+ chatFormFun);
+// function to handle chat messages
+function chatFormFun(e) {
+e.preventDefault();
+//const peer = $peers[id];
+const form = e.target;
+const userInput = document.querySelector('#chat-msg');
+const message = userInput.value;
+appendMessage('self', message);
+console.log("globe_ids:",globe_ids);
+//console.log("Contents of ids variable", globe_ids);
+console.log("Type of ids variable is",typeof(globe_ids));
+let apeer;
+for (let id1 of globe_ids) {
+    apeer = $peers[id1];
+    //console.log("Value of apeer is given below");
+    //console.log(apeer);
+    apeer.chatChannel.send(message);
   }
+
+
+console.log ('customer message ', message);
+userInput.value = '';
+
 }
 
 function handleScConnectedPeer(id) {
   console.log('Heard new connected peer ID:', id);
   setSelfAndPeerById(id, false);
   establishCallFeatures(id);
+  globe_ids.push(id);
 }
 
 function handleScDisconnectedPeer(id) {
