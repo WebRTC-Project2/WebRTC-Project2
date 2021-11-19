@@ -17,8 +17,11 @@ html {
 
 }
 #container {
-  margin: 0 auto;
+  min-height: 100vh;
   position: relative;
+}
+#page-wrap {
+  padding-bottom: 2.5rem;
 }
 #mainpage {
   padding: 22px;
@@ -57,6 +60,8 @@ html {
   width: 100%;
   border-top: 2px solid rgb(214, 214, 214);
   margin-top: 5px;
+  background-color: #DDD;
+
 }
 
 /* Buttons and Controls */
@@ -112,7 +117,8 @@ button {
 /* Videos */
 video {
   background-color: #DDD;
-  max-width: 100%;
+  max-width: 50%;
+  display: inline-block;
 }
 #videos {
   max-width: 100%;
