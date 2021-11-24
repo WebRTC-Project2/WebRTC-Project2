@@ -14,15 +14,17 @@ html {
   font-size: 22px;
   line-height: 26px;
   padding: 13px;
-
 }
+
 #container {
   min-height: 100vh;
   position: relative;
 }
+
 #page-wrap {
   padding-bottom: 2.5rem;
 }
+
 #mainpage {
   padding: 22px;
   width: 100%;
@@ -30,6 +32,7 @@ html {
   margin-right: auto;
   text-align: center;
 }
+
 #title {
   width: 100%;
   margin-right: auto;
@@ -39,10 +42,12 @@ html {
   font-size: 30px;
   font-weight: 900;
 }
+
 #logo {
   height: 120px;
   width: 120px;
 }
+
 .wrapper {
   width: 100%;
   margin-right: auto;
@@ -50,6 +55,7 @@ html {
   margin-bottom: 15px;
   text-align: center;
 }
+
 #footer {
   font-size: small;
   position: fixed;
@@ -76,38 +82,47 @@ button {
   margin-right: auto;
   text-align: center;
 }
+
 .join {
   background-color: green;
   color: white;
 }
+
 .leave {
   background-color: rgb(167, 9, 9);
   color: white;
 }
+
 #call-button {
   box-sizing: border-box;
   width: 100px;
 }
+
 .vidOff {
   background-color: green;
   color: white;
 }
+
 .videocut {
   background-color: rgb(167, 9, 9);
   color: rgb(255, 255, 255);
 }
+
 .mute {
   background-color: green;
   color: white;
 }
+
 .audiocut {
   background-color: rgb(167, 9, 9);
   color: rgb(255, 255, 255);
 }
+
 #video-button {
   box-sizing: border-box;
   width: 75px;
 }
+
 #audio-button {
   box-sizing: border-box;
   width: 75px;
@@ -119,6 +134,7 @@ video {
   max-width: 50%;
   display: inline-block;
 }
+
 #videos {
   max-width: 100%;
   display: block;
@@ -126,6 +142,7 @@ video {
   margin-left: auto;
   text-align: center;
 }
+
 #self {
   width: 50%;
   max-width: 320px;
@@ -143,25 +160,31 @@ video {
   border: solid #2c4e4e;
   float: right;
 }
+
 #chat-log {
   width: 300px;
   padding: 5px;
   margin-bottom: 5px;
 }
+
 #chat-log .peer {
   background:#DDD;
 }
+
 #chat-log .self {
   background: #98c2c2;
 }
+
 #chat-msg {
   padding: 5px;
   width: 200px;
 }
+
 #chat-btn {
   width: 50px;
   position: relative;
 }
+
 .send {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 12px;
