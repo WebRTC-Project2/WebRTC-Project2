@@ -1,15 +1,22 @@
 'use strict';
 
+//variable '$self' is used for things on users side of call
+//initially starts by setting audio to off and video to on
 const $self = {
   rtcConfig: null,
   mediaConstraints: { audio: false, video: true }
 };
 
+//peers object is used as users other than $self in syscal
+//sets up a connection b/w two or more ($self & $peers)
 const $peers = {
   connection: new RTCPeerConnection($self.rtcConfig)
 };
+
+// Ask permission to use video or audio
 requestUserMedia($self.mediaConstraints);
 
+//requests media usage from user in pop up
 async function requestUserMedia(media_constraints) {
   $self.stream = new MediaStream();
   $self.media = await navigator.mediaDevices
@@ -22,8 +29,10 @@ async function requestUserMedia(media_constraints) {
  *  Socket Server Events and Callbacks
  */
 
+//namespace to use hash in window
 const namespace = prepareNamespace(window.location.hash, true);
 
+//pass in namespace for particular hash
 const sc = io(`/${namespace}`, { autoConnect: false });
 
 registerScEvents();
@@ -42,7 +51,6 @@ filesForm.addEventListener('submit', handleFilesForm);
 
   const selfVideo = document
     .querySelector('#self');
-
 
   const chatForm = document
   .querySelector('#chat-form');
@@ -71,10 +79,10 @@ filesForm.addEventListener('submit', handleFilesForm);
      };
      const chunk = 8 * 1024; // 8KiB (kibibyte)
      // console.log(JSON.stringify(metadata));
+
      // create an asymmetric data channel
      const fdc = peer.connection
        .createDataChannel(`file-${metadata.name}`);
-
 
      if (
        !$peer.features ||
@@ -83,7 +91,6 @@ filesForm.addEventListener('submit', handleFilesForm);
        fdc.binaryType = 'arraybuffer';
      }
      console.log(`Lets use the ${fdc.binaryType} data type!`);
-
 
      fdc.onopen = async function() {
        // send the metadata, once the data channel opens
@@ -134,13 +141,11 @@ filesForm.addEventListener('submit', handleFilesForm);
 
      }
 
-
   const audbutton = document
      .querySelector('#audio-button');
 
   audbutton.addEventListener('click',
    stopAud);
-
 
 /* User-Media/DOM */
 
@@ -151,8 +156,8 @@ filesForm.addEventListener('submit', handleFilesForm);
    const video_attrs = {
      'autoplay': '',
      'playsinline': '',
-
    };
+
    figure.id = `peer-${id}`;
    figcaption.innerText = id;
    for (let attr in video_attrs) {
@@ -163,6 +168,7 @@ filesForm.addEventListener('submit', handleFilesForm);
    return figure;
  }
 
+/* DOM media events (grab self and peers)*/
  function displayStream(selector, stream) {
    let video_element = document.querySelector(selector);
    if (!video_element) {
@@ -191,8 +197,8 @@ filesForm.addEventListener('submit', handleFilesForm);
      audSt.enabled = true;
      console.log('Audio Started');
    }
-
  }
+
  //function for the vido on and off button
  function stopVid(e) {
 
@@ -213,7 +219,6 @@ filesForm.addEventListener('submit', handleFilesForm);
 
 //adding eventlistener with the function in it to pause the video
 
-
 //function for join and leave call
 function handleButton(event) {
   const callButton = event.target;
@@ -229,6 +234,7 @@ function handleButton(event) {
     leaveCall();
   }
 }
+
 // function that joins the call
 function joinCall() {
   sc.open();
@@ -284,7 +290,6 @@ function resetAndConnectAgain(id) {
   }
 }
 
-
 //function to show messages
 function appendMessage (sender, message){
   const log = document.querySelector('#chat-log');
@@ -292,7 +297,6 @@ function appendMessage (sender, message){
   li.innerText = message;
   li.className = sender;
   log.appendChild(li);
-
 }
 
 /* WebRTC Events*/
@@ -305,8 +309,6 @@ function establishCallFeatures(id) {
     shareUsername($self.username, id);
   }
 }
-
-
 
 function addStreamingMedia(id, stream) {
   const peer = $peers[id];
@@ -327,7 +329,6 @@ function addStreamingMedia(id, stream) {
      }
 }
 
-
 function registerRtcEvents(id) {
   const peer = $peers[id];
   peer.connection
@@ -347,6 +348,7 @@ function handleRtcNegotiation(id) {
     const peer = $peers[id];
     if ($self[id].isSuppressingInitialOffer) return;
     try {
+      // SDP description send and then set to make an offer false
       $self[id].isMakingOffer = true;
       await peer.connection.setLocalDescription();
     } catch(e) {
@@ -379,6 +381,7 @@ function handleRtcStateChange(id) {
 function handleRtcTrack(id) {
   return function({ track, streams: [stream] }) {
     console.log('Attempt to display media from peer...');
+     //send incoming track to peer
     displayStream(`#peer-${id}`, stream);
   }
 }
@@ -397,9 +400,7 @@ function handleRtcDataChannel(id) {
   }
 }
 
-
 /*  Signaling Channel Events */
-
 
 function registerScEvents() {
   sc.on('connect', handleScConnect);
@@ -436,7 +437,6 @@ function handleScConnectedPeers(ids) {
   }
 }
 
-
 chatForm.addEventListener('submit',
  chatFormFun);
 // function to handle chat messages
@@ -458,7 +458,6 @@ for (let id1 of globe_ids) {
     apeer.chatChannel.send(message);
   }
 
-
 console.log ('customer message ', message);
 userInput.value = '';
 
@@ -477,8 +476,6 @@ function handleScDisconnectedPeer(id) {
 
   resetCall(id, true);
 }
-
-
 
 async function handleScSignal({ from, signal: { description, candidate } }) {
   const id = from;
@@ -527,6 +524,8 @@ async function handleScSignal({ from, signal: { description, candidate } }) {
       }
     }
   } else if (candidate) {
+    // This try & catch block is used for old browsers that don't know
+    //what to do if they receive an ICE candidate.
     try {
       console.log(`INCOMING ICE CANDIDATE for ${id}`, candidate);
       await peer.connection.addIceCandidate(candidate);
@@ -536,11 +535,9 @@ async function handleScSignal({ from, signal: { description, candidate } }) {
       if (!$self[id].isIgnoringOffer && candidate.candidate.length > 1) {
         console.error('Unable to add ICE candidate for peer:', e);
       }
-    }
+    } //end of catch
   }
 }
-
-
 
 /**
  *  Utility Functions
