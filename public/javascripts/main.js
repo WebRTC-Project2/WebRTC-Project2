@@ -3,9 +3,14 @@
 //variable '$self' is used for things on users side of call
 //initially starts by setting audio to off and video to on
 const $self = {
-  rtcConfig: null,
+  rtcConfig: {
+    iceServers: [{
+      urls:"stun:stun.l.google.com:19302"
+    }]
+  },
   mediaConstraints: { audio: false, video: true }
 };
+
 
 //peers object is used as users other than $self in syscal
 //sets up a connection b/w two or more ($self & $peers)
