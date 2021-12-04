@@ -325,6 +325,11 @@ function appendMessage (sender, message){
 
 /* WebRTC Events*/
 
+function shareUsername(username, id) {
+  const peer = $peers[id];
+  const userNameDC = peer.connection.createDataChannel(`username-${username}`);
+}
+
 //function that handles all the connection
 function establishCallFeatures(id) {
   registerRtcEvents(id);
