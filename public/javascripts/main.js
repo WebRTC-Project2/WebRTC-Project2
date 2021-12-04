@@ -66,6 +66,25 @@ filesForm.addEventListener('submit', handleFilesForm);
   vidButton.addEventListener('click',
    stopVid);
 
+   const userNamebtn = document
+      .querySelector('#username-form');
+
+   userNamebtn.addEventListener('submit',
+    handleUsernameForm);
+
+
+    function handleUsernameForm(){
+      event.preventDefault();
+      const form = event.target;
+      const username = form.querySelector('#username-input').value;
+      const figcaption = document.querySelector('#self figcaption');
+      figcaption.innerText = username;
+      $self.username = username;
+      for (let id in $peers) {
+        shareUsername(username, id);
+      }
+  }
+
     function handleFilesForm(event){
      event.preventDefault();
      const form = event.target;
@@ -305,6 +324,11 @@ function appendMessage (sender, message){
 }
 
 /* WebRTC Events*/
+
+function shareUsername(username, id) {
+  const peer = $peers[id];
+  const userNameDC = peer.connection.createDataChannel(`username-${username}`);
+}
 
 //function that handles all the connection
 function establishCallFeatures(id) {
