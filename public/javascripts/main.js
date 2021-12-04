@@ -74,8 +74,16 @@ filesForm.addEventListener('submit', handleFilesForm);
 
 
     function handleUsernameForm(){
-      
-    }
+      event.preventDefault();
+      const form = event.target;
+      const username = form.querySelector('#username-input').value;
+      const figcaption = document.querySelector('#self figcaption');
+      figcaption.innerText = username;
+      $self.username = username;
+      for (let id in $peers) {
+        shareUsername(username, id);
+      }
+  }
 
     function handleFilesForm(event){
      event.preventDefault();
