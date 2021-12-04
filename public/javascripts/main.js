@@ -72,6 +72,11 @@ filesForm.addEventListener('submit', handleFilesForm);
    userNamebtn.addEventListener('submit',
     handleUsernameForm);
 
+
+    function handleUsernameForm(){
+      
+    }
+
     function handleFilesForm(event){
      event.preventDefault();
      const form = event.target;
