@@ -66,6 +66,12 @@ filesForm.addEventListener('submit', handleFilesForm);
   vidButton.addEventListener('click',
    stopVid);
 
+   const userNamebtn = document
+      .querySelector('#username-form');
+
+   userNamebtn.addEventListener('submit',
+    handleUsernameForm);
+
     function handleFilesForm(event){
      event.preventDefault();
      const form = event.target;
