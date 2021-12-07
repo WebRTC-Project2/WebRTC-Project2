@@ -2,6 +2,9 @@
 
 //variable '$self' is used for things on users side of call
 //initially starts by setting audio to off and video to on
+let broadcast_song_status = false;
+let broadcast_song_volume = false;
+
 const $self = {
   rtcConfig: {
     iceServers: [{
@@ -438,12 +441,37 @@ function registerScEvents() {
   sc.on('disconnected peer', handleScDisconnectedPeer);
   sc.on('signal', handleScSignal);
   sc.on('song received', handleSongReceive);
+  sc.on('song status received', handleSongStatusReceive);
+  sc.on('song volume received', handleSongVolumeReceive);
+}
+
+function handleSongVolumeReceive(data) {
+  console.log("song volume received");
+  if (data.namespace == namespace) {
+    const player = document.getElementById("player");
+    player.volume = data.volume;
+  }
+}
+
+function handleSongStatusReceive(data) {
+  console.log("song status received");
+  const player = document.getElementById("player");
+  if (data.namespace == namespace) {
+    if (data.status == "paused") {
+      player.pause();
+    }
+    if (data.status == "played") {
+      player.play();
+    }
+  }
 }
 
 function handleSongReceive(data) {
   console.log("song received");
   if (data.namespace == namespace) {
-    showSpotifyPlayer(data.url);
+    playingId = data.playingId;
+    playList = data.playList;
+    playSongById();
   }
 }
 
@@ -584,25 +612,131 @@ async function handleScSignal({ from, signal: { description, candidate } }) {
    return ns;
  }
 
-function showSpotifyPlayer(url) {
-  let node = document.getElementById("spotify-iframe");
-  node.innerHTML = `<iframe src="${url}" id="spotify-player" style="width:100%;bottom:0;" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
-}
-function uploadSpotifyUrl() {
-  let song_url = document.getElementById("song-url").value;
-  if (!song_url.includes("https://open.spotify.com/")) {
-    alert("not a valid spotify embed url");
-    return false;
-  }
-  song_url=song_url.replace(".com/",".com/embed/");
-  showSpotifyPlayer(song_url);
-  if (sc.connected) {
-    console.log("sending the song url");
-    sc.emit('uploadsong',
-      {
-        url: song_url,
-        namespace: namespace
-      });
-  }
-  return false;
-}
+ function showAudioPlayer(url) {
+   let node = document.getElementById("audio-player");
+   node.style.display = "block";
+   let player = document.getElementById("player");
+   player.src = url;
+ }
+ async function uploadSong(e) {
+   e.preventDefault();
+   let song = document.getElementById("song").files[0];
+   let res = await uploadFile(song);
+   if (res.status == true) {
+     let song_url = `/songs/${res.data.name}`;
+     playingId = playList.length
+     addToPlaylist({ id: playingId, name: res.data.name, song_url });
+     broadcastSongChanges();
+   }
+   else {
+     alert("can not send this song, try again");
+   }
+
+   return false;
+ }
+
+ const uploadFile = async (file) => {
+
+   const fd = new FormData();
+   fd.append('song', file);
+   let res = await fetch('/upload-song', {
+     method: 'POST',
+     body: fd
+   });
+   return await res.json();
+ };
+
+ function onPlay(player) {
+   console.log("song played");
+   if (broadcast_song_status) {
+     sendSongStatus("played");
+   }
+ }
+ function onPause(player) {
+   console.log("song paused");
+   if (broadcast_song_status) {
+     sendSongStatus("paused");
+   }
+ }
+
+
+ function sendSongStatus(status) {
+   if (sc.connected) {
+     console.log("sending the song status", status);
+     sc.emit('songstatus',
+       {
+         status: status,
+         namespace: namespace
+       });
+   }
+   broadcast_song_status = false;
+ }
+
+ function onVChange(e) {
+   if (broadcast_song_volume) {
+     if (sc.connected) {
+       let vol = e.srcElement.volume;
+       if (e.srcElement.muted) {
+         vol = 0;
+       }
+       console.log("sending the song volume", vol);
+       sc.emit('songvolume',
+         {
+           volume: vol,
+           namespace: namespace
+         });
+     }
+   }
+   broadcast_song_volume = false;
+ }
+
+ function addToPlaylist(obj) {
+   playList.push(obj);
+   playSongById();
+ }
+ function playSongById() {
+   console.log(playList);
+   console.log(playingId);
+   if (playList.length > 1) {
+     document.getElementById("prevNextControls").style.display = "block";
+   }
+   let latest_song = playList[playingId];
+   showAudioPlayer(latest_song.song_url);
+   showPlaylist();
+ }
+ function showPlaylist() {
+   let pl = document.getElementById("playlist");
+   let html = ``;
+   for (let s of playList) {
+     if (s.id == playingId) {
+       html += `<li class="playing"> ${s.name}</li>`;
+     }
+     else {
+       html += `<li class="stopped"> ${s.name}</li>`;
+     }
+   }
+   pl.innerHTML = html;
+ }
+ function broadcastSongChanges() {
+   if (sc.connected) {
+     console.log("sending the song url");
+     sc.emit('uploadsong',
+       {
+         namespace: namespace,
+         playList: playList,
+         playingId: playingId
+       });
+   }
+ }
+ function playNext() {
+   playingId = playingId + 1;
+   broadcastSongChanges();
+   playSongById();
+ }
+ function playPrevious() {
+   playingId = playingId - 1;
+   broadcastSongChanges();
+   playSongById();
+ }
+ let playList = [];
+ let playingId = null;

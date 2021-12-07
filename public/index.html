@@ -51,14 +51,25 @@
                </form>
             </aside>
             <div id='spotify-fileshare'>
-               <div id="spotify-iframe"></div>
-               <article id="spotify">
-                  <form onsubmit="return uploadSpotifyUrl()">
-                     <label for="chat-msg" class="chat-access">Spotify Song URL</label>
-                     <input type="url" id="song-url" name="chat-msg" autocomplete="off" required />
-                     <input type="submit" class="send" value="Play"></input>
-                  </form>
-               </article>
+              <ul id="playlist" style="list-style: none;">
+
+              </ul>
+              <div id="prevNextControls" style="display: none;">
+                <button style="width: 60px;height: 60px;font-size: larger;" onclick="playPrevious()">&#9194;</button>
+                <button style="width: 60px;height: 60px;font-size: larger;" onclick="playNext()">&#9193;</button>
+
+              </div>
+              <div id="audio-player" style="display: none;">
+                <audio  data-role="audio-player" id="player" onvolumechange="broadcast_song_volume=true;onVChange(event)" onplay="broadcast_song_status=true;onPlay(event)" onpause="broadcast_song_status=true;onPause(event)" controls autoplay></audio>
+              </div>
+              <article id="spotify">
+
+                <form onsubmit="return uploadSong(event)" enctype="multipart/form-data">
+                  <label for="chat-msg" class="chat-access">Upload audio file</label>
+                  <input type="file" id="song" name="chat-msg" autocomplete="off" required />
+                  <input type="submit" class="send" value="Play"></input>
+                </form>
+              </article>
                <div id="app">
                   <article id="files-sent">
                      <h2 class="preserve-access">Send a File</h2>
