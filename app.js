@@ -1,5 +1,7 @@
 const cookieParser = require('cookie-parser');
 const express = require('express');
+const fileUpload = require('express-fileupload');
+const cors = require('cors');
 const io = require('socket.io')();
 const logger = require('morgan');
 const path = require('path');
@@ -10,6 +12,10 @@ const usersRouter = require('./routes/users');
 const app = express();
 
 app.use(logger('dev'));
+app.use(fileUpload({
+  createParentPath: true
+}));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -49,6 +55,14 @@ namespaces.on('connection', function(socket) {
    socket.broadcast.emit('song received', data);
  });
 
+ socket.on('songstatus', function (data) {
+   socket.broadcast.emit('song status received', data);
+ });
+
+
+ socket.on('songvolume', function (data) {
+   socket.broadcast.emit('song volume received', data);
+ });
 });
 
 

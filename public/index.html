@@ -1,83 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <title>Project 2</title>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no" />
-      <link rel="stylesheet" href="stylesheets/screen.css" />
-      <link rel="icon" href="images/favicon.png" />
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Alegreya&display=swap" rel="stylesheet">
-   </head>
-   <body>
-      <div id="container">
-         <div id="page-wrap">
-            <main id="mainpage">
-               <header>
-                  <div class="wrapper">
-                     <img src="images/shlogo.png" id="logo">
-                     <h1 id="title">Welcome to Study Hall</h1>
-                  </div>
-               </header>
-               <article id="videos">
-                  <h2 class="preserve-access">Videos</h2>
-                  <figure id="self">
-                     <video
-                        autoplay
-                        muted
-                        playsinline>
-                     </video>
-                     <figcaption>
-                       <form id="username-form" action="#null">
-                         <label for="username-input" class="preserve-access">Enter Username</label>
-                         <input type="text" id="username-input" placeholder="Username" />
-                         <button type="submit" id="username-set-btn">Set Username</button>
-                       </form>
-                     </figcaption>
-                  </figure>
-               </article>
-               <button type="button" class="join" id="call-button">Join Call</button>
-               <button type="button" class="videocut" id="video-button">Video Off</button>
-               <button type="button" class="audiocut" id="audio-button">Mute</button>
-            </main>
-            <aside id="chatbox">
-               <h2 class="preserve-access">Chat</h2>
-               <ol id="chat-log"></ol>
-               <form id="chat-form" action="#null">
-                  <label for="chat-msg" class="preserve-access">Compose Message</label>
-                  <input type="text" id="chat-msg" name="chat-msg" autocomplete="off" />
-                  <button type="submit" class="send" id="chat-btn">Send</button>
-               </form>
-            </aside>
-            <div id='spotify-fileshare'>
-               <div id="spotify-iframe"></div>
-               <article id="spotify">
-                  <form onsubmit="return uploadSpotifyUrl()">
-                     <label for="chat-msg" class="chat-access">Spotify Song URL</label>
-                     <input type="url" id="song-url" name="chat-msg" autocomplete="off" required />
-                     <input type="submit" class="send" value="Play"></input>
-                  </form>
-               </article>
-               <div id="app">
-                  <article id="files-sent">
-                     <h2 class="preserve-access">Send a File</h2>
-                     <form id="files-form" action="#null">
-                        <label for="files-input">Share Files</label>
-                        <input type="file" id="files-input" name="files-input" />
-                        <button type="submit">Send File</button>
-                     </form>
-                  </article>
-                  <article id="files-received">
-                     <ul id="files-manifest"></ul>
-                  </article>
-               </div>
+  <head>
+    <title>Project 2</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no" />
+    <link rel="stylesheet" href="stylesheets/screen.css" />
+    <link rel="icon" href="images/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alegreya&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="container">
+      <div id="page-wrap">
+        <main id="mainpage">
+          <header>
+            <div class="wrapper">
+              <img src="images/shlogo.png" id="logo">
+              <h1 id="title">Welcome to Study Hall</h1>
             </div>
-         </div>
-         <footer id="footer">ITMD 469/545 | Fall 2021 | Akram, Augusthy, Baranda, Tariq, Zahid</footer>
+          </header>
+          <article id="videos">
+            <h2 class="preserve-access">Videos</h2>
+            <figure id="self">
+              <video
+                autoplay
+                muted
+                playsinline>
+              </video>
+              <figcaption>
+                <form id="username-form" action="#null">
+                  <label for="username-input" class="preserve-access">Enter Username</label>
+                  <input type="text" id="username-input" placeholder="Username" />
+                  <button type="submit" id="username-set-btn">Set Username</button>
+                </form>
+              </figcaption>
+            </figure>
+          </article>
+          <button type="button" class="join" id="call-button">Join Call</button>
+          <button type="button" class="videocut" id="video-button">Video Off</button>
+          <button type="button" class="audiocut" id="audio-button">Mute</button>
+        </main>
+        <aside id="chatbox">
+          <h2 class="preserve-access">Chat</h2>
+          <ol id="chat-log"></ol>
+          <form id="chat-form" action="#null">
+            <label for="chat-msg" class="preserve-access">Compose Message</label>
+            <input type="text" id="chat-msg" name="chat-msg" autocomplete="off" />
+            <button type="submit" class="send" id="chat-btn">Send</button>
+          </form>
+        </aside>
+        <div id='spotify-fileshare'>
+          <ul id="playlist" style="list-style: none;">
+          </ul>
+          <div id="prevNextControls" style="display: none;">
+            <button style="width: 60px;height: 60px;font-size: larger;" onclick="playPrevious()">&#9194;</button>
+            <button style="width: 60px;height: 60px;font-size: larger;" onclick="playNext()">&#9193;</button>
+          </div>
+          <div id="audio-player" style="display: none;">
+            <audio  data-role="audio-player" id="player" onvolumechange="broadcast_song_volume=true;onVChange(event)" onplay="broadcast_song_status=true;onPlay(event)" onpause="broadcast_song_status=true;onPause(event)" controls autoplay></audio>
+          </div>
+          <article id="spotify">
+            <form onsubmit="return uploadSong(event)" enctype="multipart/form-data">
+              <label for="chat-msg" class="chat-access">Upload audio file</label>
+              <input type="file" id="song" name="chat-msg" autocomplete="off" required />
+              <input type="submit" class="send" value="Play"></input>
+            </form>
+          </article>
+          <div id="app">
+            <article id="files-sent">
+              <h2 class="preserve-access">Send a File</h2>
+              <form id="files-form" action="#null">
+                <label for="files-input">Share Files</label>
+                <input type="file" id="files-input" name="files-input" />
+                <button type="submit">Send File</button>
+              </form>
+            </article>
+            <article id="files-received">
+              <ul id="files-manifest"></ul>
+            </article>
+          </div>
+        </div>
       </div>
-      <script src="/socket.io/socket.io.js"></script>
-      <script src="https://webrtchacks.github.io/adapter/adapter-latest.js"></script>
-      <script src="javascripts/main.js"></script>
-   </body>
+      <footer id="footer">ITMD 469/545 | Fall 2021 | Akram, Augusthy, Baranda, Tariq, Zahid</footer>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://webrtchacks.github.io/adapter/adapter-latest.js"></script>
+    <script src="javascripts/main.js"></script>
+  </body>
 </html>
