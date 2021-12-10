@@ -106,7 +106,13 @@ function handleFilesForm(event)
   const file = fileInput.files[0];
   console.log('Got a file with the name', file.name);
   //peer = $peers[id]
-  sendFile($peer, file);
+
+  for (let id in $peers)
+  {
+  let peer = $peers[id];
+  console.log("inside loop id debug",peer);
+  sendFile(peer, file);
+  }
 }
 
 function sendFile(peer, file)
