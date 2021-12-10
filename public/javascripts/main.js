@@ -105,6 +105,7 @@ function handleFilesForm(event)
   const fileInput = form.querySelector('#files-input');
   const file = fileInput.files[0];
   console.log('Got a file with the name', file.name);
+  //peer = $peers[id]
   sendFile($peer, file);
 }
 
@@ -636,13 +637,13 @@ function chatFormFun(e)
   console.log("globe_ids:", globe_ids);
   //console.log("Contents of ids variable", globe_ids);
   console.log("Type of ids variable is", typeof (globe_ids));
-  let apeer;
+  let peer;
   for (let id1 of globe_ids)
   {
-    apeer = $peers[id1];
+    peer = $peers[id1];
     //console.log("Value of apeer is given below");
     //console.log(apeer);
-    apeer.chatChannel.send(message);
+    peer.chatChannel.send(message);
   }
 
   console.log('customer message ', message);
@@ -656,6 +657,8 @@ function handleScConnectedPeer(id)
   setSelfAndPeerById(id, false);
   establishCallFeatures(id);
   globe_ids.push(id);
+  console.log("id is:", id);
+  console.log("peer of that is", $peers[id]);
 }
 
 function handleScDisconnectedPeer(id)
