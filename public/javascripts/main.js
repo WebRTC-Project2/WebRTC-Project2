@@ -105,7 +105,14 @@ function handleFilesForm(event)
   const fileInput = form.querySelector('#files-input');
   const file = fileInput.files[0];
   console.log('Got a file with the name', file.name);
-  sendFile($peer, file);
+  //peer = $peers[id]
+
+  for (let id in $peers)
+  {
+  let peer = $peers[id];
+  console.log("inside loop id debug",peer);
+  sendFile(peer, file);
+  }
 }
 
 function sendFile(peer, file)
@@ -123,8 +130,8 @@ function sendFile(peer, file)
   const fdc = peer.connection
     .createDataChannel(`file-${metadata.name}`);
 
-  if (!$peer.features ||
-    ($self.features.binaryType !== $peer.features.binaryType)
+  if (!peer.features ||
+    ($self.features.binaryType !== peer.features.binaryType)
   )
   {
     fdc.binaryType = 'arraybuffer';
@@ -636,13 +643,16 @@ function chatFormFun(e)
   console.log("globe_ids:", globe_ids);
   //console.log("Contents of ids variable", globe_ids);
   console.log("Type of ids variable is", typeof (globe_ids));
-  let apeer;
-  for (let id1 of globe_ids)
+  let peer;
+  for (let id of globe_ids)
   {
-    apeer = $peers[id1];
-    //console.log("Value of apeer is given below");
-    //console.log(apeer);
-    apeer.chatChannel.send(message);
+    if (id !== $self.id)
+    {
+      peer = $peers[id];
+      //console.log("Value of apeer is given below");
+      //console.log(apeer);
+      peer.chatChannel.send(message);
+  }
   }
 
   console.log('customer message ', message);
@@ -656,6 +666,8 @@ function handleScConnectedPeer(id)
   setSelfAndPeerById(id, false);
   establishCallFeatures(id);
   globe_ids.push(id);
+  console.log("id is:", id);
+  console.log("peer of that is", $peers[id]);
 }
 
 function handleScDisconnectedPeer(id)
