@@ -644,12 +644,15 @@ function chatFormFun(e)
   //console.log("Contents of ids variable", globe_ids);
   console.log("Type of ids variable is", typeof (globe_ids));
   let peer;
-  for (let id1 of globe_ids)
+  for (let id of globe_ids)
   {
-    peer = $peers[id1];
-    //console.log("Value of apeer is given below");
-    //console.log(apeer);
-    peer.chatChannel.send(message);
+    if (id !== $self.id)
+    {
+      peer = $peers[id];
+      //console.log("Value of apeer is given below");
+      //console.log(apeer);
+      peer.chatChannel.send(message);
+  }
   }
 
   console.log('customer message ', message);
