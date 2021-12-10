@@ -124,8 +124,8 @@ function sendFile(peer, file)
   const fdc = peer.connection
     .createDataChannel(`file-${metadata.name}`);
 
-  if (!$peer.features ||
-    ($self.features.binaryType !== $peer.features.binaryType)
+  if (!peer.features ||
+    ($self.features.binaryType !== peer.features.binaryType)
   )
   {
     fdc.binaryType = 'arraybuffer';
